@@ -11,8 +11,7 @@ if (!location) {
     if (error) {
       return console.log(error);
     }
-    // console.log("Error", error);
-    // console.log("Data", data);
+
     forecast(latitude, longitude, (error, forecastData) => {
       if (error) {
         return console.log(error);
