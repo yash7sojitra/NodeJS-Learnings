@@ -1,19 +1,34 @@
 //CRUD  Create Read Update Delete
 
-const mongodb = require("mongodb");
-const MongoClient = mongodb.MongoClient;
+const mongoose = require("mongoose");
 
-const connectionURL = "mongodb://127.0.0.1:27017";
-const databaseName = "task-manager";
+const url = "mongodb://127.0.0.1:27017/Sample";
 
-MongoClient.connect(
-  connectionURL,
-  { useNewUrlParser: true },
-  (error, client) => {
-    if (error) {
-      return console.log("Unable to connect to database!");
-    }
+mongoose
+  .connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log("Connected to mongoDb successfully");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
-    console.log("Connected correctly");
-  }
-);
+const student = new mongoose.Schema({
+  name: String,
+  workout: Boolean,
+  height: Number,
+});
+
+const Student = new mongoose.model("Student", student);
+
+const adder = async () => {
+  const ss = await Student.create({
+    name: "Yash",
+    workout: false,
+    height: 4,
+  });
+
+  console.log(ss);
+};
+
+adder();
