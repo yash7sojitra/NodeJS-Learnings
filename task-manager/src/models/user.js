@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const bycrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
-const User = mongoose.model("User", {
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -10,6 +12,7 @@ const User = mongoose.model("User", {
   email: {
     type: String,
     required: true,
+    unique: true,
     trim: true,
     lowercase: true,
     validate(value) {
@@ -21,6 +24,7 @@ const User = mongoose.model("User", {
   password: {
     type: String,
     required: true,
+    unique: true,
     trim: true,
     minlength: 7,
     validate(value) {
@@ -38,6 +42,66 @@ const User = mongoose.model("User", {
       }
     },
   },
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
 });
+
+userSchema.statics.findByCredentials = async (email, password) => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new Error("Unable to login");
+  }
+
+  const isMatch = await bycrypt.compare(password, user.password);
+
+  if (!isMatch) {
+    throw new Error("Unablet to login");
+  }
+
+  return user;
+};
+
+userSchema.methods.generateAuthToken = async function () {
+  const user = this;
+  const token = jwt.sign({ _id: user._id.toString() }, "thisismynewcourse");
+
+  user.tokens = user.tokens.concat({ token });
+
+  await user.save();
+
+  return token;
+};
+
+userSchema.methods.getPublicProfile = function () {
+  const user = this;
+  const userObject = user.toObject();
+
+  delete userObject.password;
+  delete userObject.tokens;
+
+  return userObject;
+};
+
+//Hash the plain text password before saving
+userSchema.pre("save", async function (next) {
+  const user = this; //'this' references the current document
+
+  if (user.isModified("password")) {
+    user.password = await bycrypt.hash(user.password, 8);
+  }
+
+  console.log("Just before saving!");
+  next();
+});
+
+const User = mongoose.model("User", userSchema);
+User.createIndexes();
 
 module.exports = User;
