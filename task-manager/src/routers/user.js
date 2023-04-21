@@ -25,7 +25,11 @@ router.post("/users/login", async (req, res) => {
     );
 
     const token = await user.generateAuthToken();
-    res.send({ user: user.getPublicProfile(), token });
+
+    //When we pass out object into res.send({OBJECTS}), they are stringified internally
+    // If an object being stringified has a toJSON() method defined,
+    //JSON.stringify() will call the toJSON() method to obtain a value to be serialized.
+    res.send({ user, token });
   } catch (error) {
     res.status(400).send();
   }
@@ -57,23 +61,26 @@ router.post("/users/logoutAll", auth, async (req, res) => {
   }
 });
 
+//Read Profile
 router.get("/users/me", auth, async (req, res) => {
   res.send(req.user);
 });
 
-router.get("/users/:id", async (req, res) => {
-  const _id = req.params.id;
+//This route is replace by the above route which does the same thing of
+//retrieving the user profile
+// router.get("/users/:id", async (req, res) => {
+//   const _id = req.params.id;
 
-  try {
-    const user = await User.findById(_id);
-    if (!user) {
-      return res.status(404).send();
-    }
-    res.send(user);
-  } catch (error) {
-    res.status(500).send();
-  }
-});
+//   try {
+//     const user = await User.findById(_id);
+//     if (!user) {
+//       return res.status(404).send();
+//     }
+//     res.send(user);
+//   } catch (error) {
+//     res.status(500).send();
+//   }
+// });
 
 router.patch("/users/:id", async (req, res) => {
   const updates = Object.keys(req.body);
@@ -106,16 +113,17 @@ router.patch("/users/:id", async (req, res) => {
   }
 });
 
-router.delete("/users/:id", async (req, res) => {
+router.delete("/users/me", auth, async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
+    // const user = await User.findByIdAndDelete(req.user._id);
 
-    if (!user) {
-      return res.status(404).send();
-    }
-
-    res.send(user);
+    // if (!user) {
+    //   return res.status(404).send();
+    // }
+    await req.user.deleteOne({ _id: req.user._id });
+    res.send(req.user);
   } catch (error) {
+    console.log(error);
     res.status(500).send();
   }
 });
