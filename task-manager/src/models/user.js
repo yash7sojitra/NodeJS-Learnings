@@ -52,6 +52,12 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
+userSchema.virtual("tasks", {
+  ref: "Task",
+  localField: "_id",
+  foreignField: "owner",
+});
+
 userSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email });
 
@@ -100,6 +106,8 @@ userSchema.pre("save", async function (next) {
   console.log("Just before saving!");
   next();
 });
+
+//Delete user Tasks
 
 const User = mongoose.model("User", userSchema);
 User.createIndexes();
