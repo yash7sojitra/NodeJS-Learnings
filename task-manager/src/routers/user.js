@@ -116,7 +116,7 @@ router.delete("/users/me", auth, async (req, res) => {
     // if (!user) {
     //   return res.status(404).send();
     // }
-    await req.user.deleteOne({ _id: req.user._id });
+    await req.user.deleteOne();
     res.send(req.user);
   } catch (error) {
     console.log(error);
