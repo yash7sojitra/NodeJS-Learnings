@@ -7,6 +7,15 @@ const taskRouter = require("./routers/task");
 const app = express();
 const port = process.env.PORT || 3000;
 
+const multer = require("multer");
+const upload = multer({
+  dest: "images",
+});
+
+app.post("/upload", upload.single("upload"), (req, res) => {
+  res.send();
+});
+
 // app.use((req, res, next) => {
 //   if (req.method === "GET") {
 //     res.send("GET requests are disabled.");
@@ -44,18 +53,19 @@ app.listen(port, () => {
 
 // myFunction();
 
-const Task = require("./models/task");
-const User = require("./models/user");
+//How populate works?
+// const Task = require("./models/task");
+// const User = require("./models/user");
 
-const main = async () => {
-  //Get the User who created this task based on the taskID
-  // const task = await Task.findById("6443610a9dc3a3a97cde729d");
-  // await task.populate("owner");
-  // console.log(task.owner);
-  //Get all the tasks created by a single user based on the userID
-  // const user = await User.findById("644360bb9dc3a3a97cde7292");
-  // await user.populate("tasks");
-  // console.log(user.tasks);
-};
+// const main = async () => {
+//   //Get the User who created this task based on the taskID
+//   // const task = await Task.findById("6443610a9dc3a3a97cde729d");
+//   // await task.populate("owner");
+//   // console.log(task.owner);
+//   //Get all the tasks created by a single user based on the userID
+//   // const user = await User.findById("644360bb9dc3a3a97cde7292");
+//   // await user.populate("tasks");
+//   // console.log(user.tasks);
+// };
 
-main();
+// main();
